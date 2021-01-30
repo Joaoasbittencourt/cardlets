@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="Deps: lambdaisland/kaocha-cloverage:1.0.75">
+    <CLASSES>
+      <root url="jar://$MAVEN_REPOSITORY$/lambdaisland/kaocha-cloverage/1.0.75/kaocha-cloverage-1.0.75.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>
