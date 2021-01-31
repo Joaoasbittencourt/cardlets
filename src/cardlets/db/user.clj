@@ -27,5 +27,14 @@
   (d/q '[:find (pull ?uid pattern) .
          :in $ ?user-id pattern
          :where [?uid :user/id ?user-id]]
-       db  user-id
-       '[*]))
+       db  user-id '[*]))
+
+(defn update! [conn user-id user-data]
+  (if (fetch (d/db conn) user-id)
+    (let [tx-data (merge user-data {:user/id user-id})
+          db-after (:db-after @(d/transact conn [tx-data]))]
+      (fetch db-after user-id))
+    (throw (ex-info
+            "Unable to update user"
+            {:cardlets/error-id :server-error
+             :error "Unable to edit user"}))))

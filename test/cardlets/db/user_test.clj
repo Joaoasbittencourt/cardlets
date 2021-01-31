@@ -13,13 +13,24 @@
   (gen/generate (s/gen ::SUT/user)))
 
 (deftest user
+
   (testing "Creating User"
     (let [data (fake-user)
           res (SUT/create! *conn* data)]
       (is (not (nil? res)))
       (is (uuid? res))))
+
   (testing "User fetching"
     (let [uid (SUT/create! *conn* (fake-user))
           user (SUT/fetch (d/db *conn*) uid)]
       (println user)
-      (is (= true (s/valid? ::SUT/user user))))))
+      (is (= true (s/valid? ::SUT/user user)))))
+
+  (testing "User Updating"
+    (let [intended-data {:user/username "Edited"
+                         :user/email "edited@mail.com"}
+          uid (SUT/create! *conn* (fake-user))
+          user (SUT/update! *conn* uid intended-data)]
+      (is (s/valid? ::SUT/user user))
+      (is (= (:user/username intended-data) (:user/username user)))
+      (is (= (:user/email intended-data) (:user/email user))))))
