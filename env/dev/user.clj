@@ -1,6 +1,7 @@
 (ns user
   (:require [mount.core :as mount]
-            [cardlets.db.core]))
+            [cardlets.db.core]
+            [clojure.tools.namespace.repl :as tn]))
 
 (defn start []
   (mount/start))
@@ -10,6 +11,7 @@
 
 (defn restart-dev []
   (stop)
+  (tn/refresh-all)
   (start))
 
 (comment (restart-dev))
