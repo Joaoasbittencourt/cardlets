@@ -33,4 +33,9 @@
           user (SUT/update! *conn* uid intended-data)]
       (is (s/valid? ::SUT/user user))
       (is (= (:user/username intended-data) (:user/username user)))
-      (is (= (:user/email intended-data) (:user/email user))))))
+      (is (= (:user/email intended-data) (:user/email user)))))
+  (testing "User delete"
+    (let [uid (SUT/create! *conn* (fake-user))
+          deleted-user (SUT/delete! *conn* uid)]
+      (is (s/valid? ::SUT/user deleted-user))
+      (is (nil? (SUT/fetch (d/db *conn*) uid))))))

@@ -38,3 +38,8 @@
             "Unable to update user"
             {:cardlets/error-id :server-error
              :error "Unable to edit user"}))))
+
+(defn delete! [conn user-id]
+  (when-let [user (fetch (d/db conn) user-id)]
+    (d/transact conn [[:db/retractEntity [:user/id user-id]]])
+    user))
