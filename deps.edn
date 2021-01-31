@@ -12,4 +12,6 @@
                      :extra-deps {lambdaisland/kaocha           {:mvn/version "1.0.732"}
                                   lambdaisland/kaocha-cloverage {:mvn/version "1.0.75"}}
                      :main-opts ["-m" "kachoa.runner"]}
-           :socket-repl {:jvm-opts ["-Dclojure.server.repl={:port,50505,:accept,clojure.core.server/repl}"]}}}
+           :socket-repl {:extra-paths ["config/dev" "env/dev"]
+                         :extra-deps {org.clojure/tools.namespace   {:mvn/version "1.0.0"}}
+                         :jvm-opts ["-Dclojure.server.repl={:port,50505,:accept,clojure.core.server/repl}"]}}}
