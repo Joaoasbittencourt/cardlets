@@ -26,5 +26,4 @@
    {:db/ident :user/last-login
     :db/valueType :db.type/instant
     :db/cardinality :db.cardinality/one
-    :db/doc "Hasehd User Password"}
-   ])
+    :db/doc "User last login"}])
