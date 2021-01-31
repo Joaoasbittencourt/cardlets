@@ -23,7 +23,6 @@
   (testing "User fetching"
     (let [uid (SUT/create! *conn* (fake-user))
           user (SUT/fetch (d/db *conn*) uid)]
-      (println user)
       (is (= true (s/valid? ::SUT/user user)))))
 
   (testing "User Updating"
