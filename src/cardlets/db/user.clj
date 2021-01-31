@@ -16,11 +16,16 @@
 (defn create! [conn params]
   (if (s/valid? ::user params)
     (let [user-id (d/squuid)
-          tx-data (merge
-                   {:user/id user-id}
-                   params)]
+          tx-data (merge params {:user/id user-id})]
       (d/transact conn [tx-data])
       user-id)
     (throw (ex-info "User is invalid"
                     {:cardlets/error-id :validation
                      :error "Invalid email or password provided"}))))
+
+(defn fetch [db user-id]
+  (d/q '[:find (pull ?uid pattern) .
+         :in $ ?user-id pattern
+         :where [?uid :user/id ?user-id]]
+       db  user-id
+       '[*]))
