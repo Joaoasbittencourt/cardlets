@@ -1,13 +1,13 @@
 (ns cardlets.db.users
   (:require [datomic.api :as d]
             [clojure.spec.alpha :as s]
-            [cardlets.validation :as some]))
+            [cardlets.validation :as v]))
 
 (s/def :user/id uuid?)
-(s/def :user/email some/user-email)
-(s/def :user/password (some/text-longer-than 5))
-(s/def :user/username (some/text-longer-than 5))
-(s/def :user/token  (some/text-longer-than 5))
+(s/def :user/email v/user-email)
+(s/def :user/password (v/text-longer-than 5))
+(s/def :user/username (v/text-longer-than 5))
+(s/def :user/token  (v/text-longer-than 5))
 
 (s/def ::user
   (s/keys :req [:user/email :user/password]

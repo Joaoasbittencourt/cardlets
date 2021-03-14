@@ -77,6 +77,5 @@
           deck-id (SUT/create! *conn* user-id deck-params)
           deleted-deck (SUT/delete! *conn* user-id deck-id)
           user-try (SUT/fetch (d/db *conn*) user-id deck-id)]
-
       (is (s/valid? ::SUT/deck deleted-deck))
       (is (nil? user-try)))))
