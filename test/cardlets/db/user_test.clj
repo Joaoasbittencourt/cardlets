@@ -33,6 +33,7 @@
       (is (s/valid? ::SUT/user user))
       (is (= (:user/username intended-data) (:user/username user)))
       (is (= (:user/email intended-data) (:user/email user)))))
+
   (testing "User delete"
     (let [uid (SUT/create! *conn* (fake-user))
           deleted-user (SUT/delete! *conn* uid)]

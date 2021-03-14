@@ -5,11 +5,14 @@
 
 (s/def :deck/id uuid?)
 (s/def :deck/title (v/text-longer-than 4))
-(s/def :deck/tags (s/coll-of string? :kind set? :min-count 0))
+(s/def :deck/tags (s/coll-of string?))
 
 (s/def ::deck
   (s/keys :req [:deck/title :deck/tags]
           :opt [:deck/id]))
+
+(s/def ::deck-edit
+  (s/keys :opt [:deck/id :deck/title :deck/tags]))
 
 
 (defn fetch-list-by-user [db user-id]
@@ -44,7 +47,7 @@
 
 (defn edit! [conn user-id deck-id deck-data]
   (let [deck (fetch (d/db conn) user-id deck-id)]
-    (if deck
+    (if (and deck s/valid? ::deck-edit deck-data)
       (let [tx-data (merge deck-data {:deck/id deck-id})
             db-after (:db-after @(d/transact conn [tx-data]))]
         (fetch db-after user-id deck-id))
@@ -53,6 +56,8 @@
               {:cardlets/error-id :server-error
                :error "Unable to edit Deck"})))))
 
-(defn delete! [conn uid deck-id])
-
+(defn delete! [conn uid deck-id]
+  (when-let [deck (fetch (d/db conn) uid deck-id)]
+    (d/transact conn [[:db/retractEntity [:deck/id deck-id]]])
+    deck))
 

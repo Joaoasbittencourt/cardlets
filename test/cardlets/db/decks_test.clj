@@ -69,4 +69,14 @@
           edit-deck-params {:deck/title "edited"}
           edited-deck (SUT/edit! *conn* user-id deck-id edit-deck-params)]
       (is (not (nil? edited-deck)))
-      (is (= (:deck/title edited-deck) "edited")))))
+      (is (= (:deck/title edited-deck) "edited"))))
+
+  (testing "Deleting a deck"
+    (let [user-id (user-ns/create! *conn* (generate-user))
+          deck-params (generate-deck)
+          deck-id (SUT/create! *conn* user-id deck-params)
+          deleted-deck (SUT/delete! *conn* user-id deck-id)
+          user-try (SUT/fetch (d/db *conn*) user-id deck-id)]
+
+      (is (s/valid? ::SUT/deck deleted-deck))
+      (is (nil? user-try)))))
