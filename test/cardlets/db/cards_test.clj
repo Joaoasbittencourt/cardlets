@@ -53,7 +53,7 @@
         (is (not (nil? card)))
         (is (s/valid? ::SUT/card card)))))
 
-  (testing "Create Card"
+  (testing "Create Card returns a valid card"
     (let [uid (users/create! *conn* (mock/user))
           did (decks/create! *conn* uid (mock/deck))
           card-data {:card/id (d/squuid)
@@ -62,4 +62,19 @@
                      :card/back "A programming language"}
           cid (SUT/create! *conn* did card-data)]
       (is (uuid? cid))
-      (is (s/valid? ::SUT/card (SUT/fetch (d/db *conn*) cid))))))
+      (is (s/valid? ::SUT/card (SUT/fetch (d/db *conn*) cid)))))
+
+  (testing "Card update to return a valid card"
+    (let [uid (users/create! *conn* (mock/user))
+          did (decks/create! *conn* uid (mock/deck))
+          card-data {:card/id (d/squuid)
+                     :card/deck [:deck/id did]
+                     :card/front "What is Clojure"
+                     :card/back "A programming language"}
+          cid (SUT/create! *conn* did card-data)
+          edit-data {:card/front "edited"}
+          updated-card (SUT/update! *conn* cid edit-data)]
+      (is (not (nil? updated-card)))
+      (is (s/valid? ::SUT/card updated-card))
+      (is (= "edited" (:card/front updated-card)))
+      (is (not (= (:card/front card-data) (:card/front updated-card)))))))

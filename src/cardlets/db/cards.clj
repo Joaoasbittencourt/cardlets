@@ -13,16 +13,10 @@
   (s/keys :req [:card/front :card/back]
           :opt [:card/id :card/progress :card/next-study-date]))
 
-(defn create! [conn deck-id card-data]
-  (if (s/valid? ::card card-data)
-    (let [card-id (d/squuid)
-          tx-data (merge card-data {:card/id card-id
-                                    :card/deck [:deck/id deck-id]})]
-      (d/transact conn [tx-data])
-      card-id)
-    (throw (ex-info "Card is invalid"
-                    {:cardlets/error-id :validation
-                     :error "Invalid Card"}))))
+(s/def ::update-card
+  (s/keys
+   :opt [:card/progress :card/next-study-date :card/front :card/back]))
+
 
 (defn fetch-by-deck [db deck-id]
   (d/q '[:find [(pull ?card [*]) ...]
@@ -36,6 +30,47 @@
          :in $ ?cid
          :where
          [?card :card/id ?cid]] db card-id))
+
+(defn create! [conn deck-id card-data]
+  (if (s/valid? ::card card-data)
+    (let [card-id (d/squuid)
+          tx-data (merge card-data {:card/id card-id
+                                    :card/deck [:deck/id deck-id]})]
+      (d/transact conn [tx-data])
+      card-id)
+    (throw (ex-info "Card is invalid"
+                    {:cardlets/error-id :validation
+                     :error "Invalid Card"}))))
+
+(defn update! [conn card-id update-card-data]
+  (if (s/valid? ::update-card update-card-data)
+    (let [card (fetch (d/db conn) card-id)]
+      (if (s/valid? ::card card)
+        (let [tx-data (merge update-card-data
+                             {:card/id card-id})
+              db-after (:db-after @(d/transact conn [tx-data]))]
+          (fetch db-after card-id))
+        (throw (ex-info "No valid card was found"
+                        {:cardlets/error-id :validation
+                         :error "card not found"}))))
+    (throw (ex-info "Update card data is invalid"
+                    {:cardlets/error-id :validation
+                     :error "Invalid card data"}))))
+
+
+;; (defn edit! [conn user-id deck-id deck-data]
+;;   (let [deck (fetch (d/db conn) user-id deck-id)]
+;;     (if (and deck s/valid? ::deck-edit deck-data)
+;;       (let [tx-data (merge deck-data {:deck/id deck-id})
+;;             db-after (:db-after @(d/transact conn [tx-data]))]
+;;         (fetch db-after user-id deck-id))
+;;       (throw (ex-info
+;;               "Unable to edit Deck"
+;;               {:cardlets/error-id :server-error
+;;                :error "Unable to edit Deck"})))))
+
+
+
 
 
 
