@@ -13,11 +13,6 @@
 
 (deftest cards
 
-;;   (testing "Create Card"
-;;     (let [uid (users/create! *conn* (mock/user))
-;;           did (decks/create! *conn* uid (mock/deck))
-;;           cid (SUT/create! *conn* uid did (mock/card))]))
-
   (testing "fetch cards by deck that returns empty when no cards available"
     (let [uid (users/create! *conn* (mock/user))
           did (decks/create! *conn* uid (mock/deck))
@@ -36,4 +31,30 @@
       (let [cards  (SUT/fetch-by-deck (d/db *conn*) did)]
         (is (seq cards))
         (is (s/valid? ::SUT/card (first cards)))
-        (is (> (count cards) 0))))))
+        (is (> (count cards) 0)))))
+
+
+  (testing "fetch single cards returns nil when not available"
+    (let [no-card-id (d/squuid)
+          card (SUT/fetch (d/db *conn*) no-card-id)]
+      (is (nil? card))
+      (is (not (map? card)))))
+
+  (testing "fetch single cards returns card when available"
+    (let [uid (users/create! *conn* (mock/user))
+          did (decks/create! *conn* uid (mock/deck))
+          cid (d/squuid)
+          card-data {:card/id cid
+                     :card/deck [:deck/id did]
+                     :card/front "What is Clojure"
+                     :card/back "A programming language"}]
+      @(d/transact *conn* [card-data])
+      (let [card (SUT/fetch (d/db *conn*) cid)]
+        (is (not (nil? card)))
+        (is (s/valid? ::SUT/card card)))))
+
+  (testing "Create Card"
+    (let [uid (users/create! *conn* (mock/user))
+          did (decks/create! *conn* uid (mock/deck))
+          cid (SUT/create! *conn* did (mock/card did))]
+      (is (uuid? cid)))))

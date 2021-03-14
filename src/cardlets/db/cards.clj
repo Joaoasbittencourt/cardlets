@@ -13,20 +13,29 @@
   (s/keys :req [:card/front :card/back]
           :opt [:card/id :card/progress :card/next-study-date]))
 
-(defn create! [conn user-id deck-id card-data])
+(defn create! [conn deck-id card-data]
+  (if (s/valid? ::card card-data)
+    (let [card-id (d/squuid)
+          tx-data (merge card-data {:card/id card-id
+                                    :card/deck [:deck/id deck-id]})]
+      (d/transact conn [tx-data])
+      card-id)
+    (throw (ex-info "Card is invalid"
+                    {:cardlets/error-id :validation
+                     :error "Invalid Card"}))))
 
 (defn fetch-by-deck [db deck-id]
   (d/q '[:find [(pull ?card [*]) ...]
          :in $ ?did
-         :where [?deck :deck/id ?did]
+         :where
+         [?deck :deck/id ?did]
          [?card :card/deck ?deck]] db deck-id))
 
+(defn fetch [db card-id]
+  (d/q '[:find (pull ?card [*]) .
+         :in $ ?cid
+         :where
+         [?card :card/id ?cid]] db card-id))
 
 
-;; (defn fetch-list-by-user [db user-id]
-;;   (d/q '[:find [(pull ?deck [*]) ...]
-;;          :in $ ?uid
-;;          :where
-;;          [?user :user/id ?uid]
-;;          [?deck :deck/author ?user]] db user-id))
 
