@@ -1,4 +1,4 @@
-(ns cardlets.db.user
+(ns cardlets.db.users
   (:require [datomic.api :as d]
             [clojure.spec.alpha :as s]
             [cardlets.validation :as some]))

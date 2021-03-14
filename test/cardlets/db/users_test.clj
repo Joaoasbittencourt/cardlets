@@ -1,7 +1,7 @@
-(ns cardlets.db.user-test
+(ns cardlets.db.users-test
   (:require [clojure.test :refer [is deftest testing use-fixtures]]
             [datomic.api :as d]
-            [cardlets.db.user :as SUT]
+            [cardlets.db.users :as SUT]
             [cardlets.db.with-db :refer [with-db *conn*]]
             [clojure.test.check.generators :as gen]
             [clojure.spec.alpha :as s]))
