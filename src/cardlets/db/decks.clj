@@ -31,6 +31,16 @@
        db user-id deck-id))
 
 
-(defn create! [db uid deck-data])
+(defn create! [conn uid deck-data]
+  (if (s/valid? ::deck deck-data)
+    (let [deck-id (d/squuid)
+          tx-data (merge deck-data {:deck/id deck-id
+                                    :author/id uid})]
+      (d/transact conn [tx-data])
+      deck-id)
+    (throw (ex-info "Deck is invalid"
+                    {:cardlets/error-id :validation
+                     :error "Invalid Deck"}))))
+
 (defn edit [conn uid deck-data])
 (defn delete! [conn uid deck-id])

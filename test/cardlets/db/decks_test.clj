@@ -13,8 +13,10 @@
   (gen/generate (s/gen ::user-ns/user)))
 
 (defn generate-deck
+  ([]
+   (gen/generate (s/gen ::SUT/deck)))
   ([author-uid]
-   (merge (gen/generate (s/gen ::SUT/deck))
+   (merge (generate-deck)
           {:deck/author [:user/id author-uid]}))
   ([author-uid deck-id]
    (merge (generate-deck author-uid) {:deck/id deck-id})))
@@ -52,6 +54,13 @@
           uid (user-ns/create! *conn* user-params)
           deck-id (d/squuid)
           deck (SUT/fetch (d/db *conn*) uid deck-id)]
-      (is (nil? deck)))))
+      (is (nil? deck))))
+
+  (testing "Creating a new deck"
+    (let [user-params (generate-user)
+          user-id (user-ns/create! *conn* user-params)
+          deck-params (generate-deck)
+          deck-id (SUT/create! *conn* user-id deck-params)]
+      (is (uuid? deck-id)))))
 
 
