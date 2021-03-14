@@ -27,7 +27,6 @@
     (let [user-data (generate-user)
           uid (user-ns/create! *conn* user-data)
           decks (SUT/fetch-list-by-user (d/db *conn*) uid)]
-      (println decks)
       (is (vector? decks))
       (is (empty? decks))))
 
@@ -61,6 +60,13 @@
           user-id (user-ns/create! *conn* user-params)
           deck-params (generate-deck)
           deck-id (SUT/create! *conn* user-id deck-params)]
-      (is (uuid? deck-id)))))
+      (is (uuid? deck-id))))
 
-
+  (testing "Editing a new deck"
+    (let [user-id (user-ns/create! *conn* (generate-user))
+          deck-params (generate-deck)
+          deck-id (SUT/create! *conn* user-id deck-params)
+          edit-deck-params {:deck/title "edited"}
+          edited-deck (SUT/edit! *conn* user-id deck-id edit-deck-params)]
+      (is (not (nil? edited-deck)))
+      (is (= (:deck/title edited-deck) "edited")))))

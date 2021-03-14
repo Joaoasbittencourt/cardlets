@@ -35,12 +35,24 @@
   (if (s/valid? ::deck deck-data)
     (let [deck-id (d/squuid)
           tx-data (merge deck-data {:deck/id deck-id
-                                    :author/id uid})]
+                                    :deck/author [:user/id uid]})]
       (d/transact conn [tx-data])
       deck-id)
     (throw (ex-info "Deck is invalid"
                     {:cardlets/error-id :validation
                      :error "Invalid Deck"}))))
 
-(defn edit [conn uid deck-data])
+(defn edit! [conn user-id deck-id deck-data]
+  (let [deck (fetch (d/db conn) user-id deck-id)]
+    (if deck
+      (let [tx-data (merge deck-data {:deck/id deck-id})
+            db-after (:db-after @(d/transact conn [tx-data]))]
+        (fetch db-after user-id deck-id))
+      (throw (ex-info
+              "Unable to edit Deck"
+              {:cardlets/error-id :server-error
+               :error "Unable to edit Deck"})))))
+
 (defn delete! [conn uid deck-id])
+
+
