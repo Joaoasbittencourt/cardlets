@@ -56,5 +56,10 @@
   (testing "Create Card"
     (let [uid (users/create! *conn* (mock/user))
           did (decks/create! *conn* uid (mock/deck))
-          cid (SUT/create! *conn* did (mock/card did))]
-      (is (uuid? cid)))))
+          card-data {:card/id (d/squuid)
+                     :card/deck [:deck/id did]
+                     :card/front "What is Clojure"
+                     :card/back "A programming language"}
+          cid (SUT/create! *conn* did card-data)]
+      (is (uuid? cid))
+      (is (s/valid? ::SUT/card (SUT/fetch (d/db *conn*) cid))))))
