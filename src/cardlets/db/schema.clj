@@ -48,7 +48,7 @@
     :db/cardinality :db.cardinality/many
     :db/doc "Deck tags"}
 
-	  ;; CARD
+	;; CARD
    {:db/ident :card/id
     :db/valueType :db.type/uuid
     :db/unique :db.unique/identity

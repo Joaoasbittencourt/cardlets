@@ -20,4 +20,3 @@
 (defn text-longer-than [length]
   (s/with-gen (string-longer-than length)
     #(s/gen #{(rand-str (inc length)) (rand-str (inc (inc length)))})))
-
