@@ -12,6 +12,13 @@
 (defn generate-user []
   (gen/generate (s/gen ::user-ns/user)))
 
+(defn generate-deck
+  ([author-uid]
+   (merge (gen/generate (s/gen ::SUT/deck))
+          {:deck/author [:user/id author-uid]}))
+  ([author-uid deck-id]
+   (merge (generate-deck author-uid) {:deck/id deck-id})))
+
 (deftest decks
 
   (testing "list decks - returns a empty vector when no cards avaliable"
@@ -25,10 +32,7 @@
   (testing "list decks - returns a empty vector if no available cards"
     (let [user-data (generate-user)
           uid (user-ns/create! *conn* user-data)
-          deck-data {:deck/id (d/squuid)
-                     :deck/title "Learning Clojure"
-                     :deck/tags #{"Programming" "Software" "Clojure"}
-                     :deck/author [:user/id uid]}]
+          deck-data (generate-deck uid)]
       @(d/transact *conn* [deck-data])
       (let [decks (SUT/fetch-list-by-user (d/db *conn*) uid)]
         (is (vector? decks))
@@ -38,10 +42,7 @@
     (let [user-params (generate-user)
           uid (user-ns/create! *conn* user-params)
           deck-id (d/squuid)
-          deck-params {:deck/id deck-id
-                       :deck/title "Learning Clojure"
-                       :deck/tags #{"Programming" "Software" "Clojure"}
-                       :deck/author [:user/id uid]}]
+          deck-params (generate-deck uid deck-id)]
       @(d/transact *conn* [deck-params])
       (let [deck (SUT/fetch (d/db *conn*) uid deck-id)]
         (is (not (nil? deck))))))
