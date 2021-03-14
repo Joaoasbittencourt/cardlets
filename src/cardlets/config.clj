@@ -3,5 +3,4 @@
             [config.core :as config]))
 
 (declare env)
-(defstate env
-  :start config/env)
+(defstate env :start config/env)
