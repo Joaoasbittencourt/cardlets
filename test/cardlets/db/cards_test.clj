@@ -33,7 +33,6 @@
         (is (s/valid? ::SUT/card (first cards)))
         (is (> (count cards) 0)))))
 
-
   (testing "fetch single cards returns nil when not available"
     (let [no-card-id (d/squuid)
           card (SUT/fetch (d/db *conn*) no-card-id)]
@@ -77,4 +76,17 @@
       (is (not (nil? updated-card)))
       (is (s/valid? ::SUT/card updated-card))
       (is (= "edited" (:card/front updated-card)))
-      (is (not (= (:card/front card-data) (:card/front updated-card)))))))
+      (is (not (= (:card/front card-data) (:card/front updated-card))))))
+
+  (testing "Deleting a Card"
+    (let [uid (users/create! *conn* (mock/user))
+          did (decks/create! *conn* uid (mock/deck))
+          card-data {:card/id (d/squuid)
+                     :card/deck [:deck/id did]
+                     :card/front "What is Clojure"
+                     :card/back "A programming language"}
+          cid (SUT/create! *conn* did card-data)
+          deleted-card (SUT/delete! *conn* cid)
+          after-delete-card (SUT/fetch (d/db *conn*) cid)]
+      (is (s/valid? ::SUT/card deleted-card))
+      (is (nil? after-delete-card)))))

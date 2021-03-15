@@ -57,20 +57,9 @@
                     {:cardlets/error-id :validation
                      :error "Invalid card data"}))))
 
-
-;; (defn edit! [conn user-id deck-id deck-data]
-;;   (let [deck (fetch (d/db conn) user-id deck-id)]
-;;     (if (and deck s/valid? ::deck-edit deck-data)
-;;       (let [tx-data (merge deck-data {:deck/id deck-id})
-;;             db-after (:db-after @(d/transact conn [tx-data]))]
-;;         (fetch db-after user-id deck-id))
-;;       (throw (ex-info
-;;               "Unable to edit Deck"
-;;               {:cardlets/error-id :server-error
-;;                :error "Unable to edit Deck"})))))
-
-
-
-
+(defn delete! [conn card-id]
+  (let [card (fetch (d/db conn) card-id)]
+    (d/transact conn [[:db/retractEntity [:card/id card-id]]])
+    card))
 
 
