@@ -42,20 +42,20 @@
                     {:cardlets/error-id :validation
                      :error "Invalid Card"}))))
 
-(defn update! [conn card-id update-card-data]
-  (if (s/valid? ::update-card update-card-data)
-    (let [card (fetch (d/db conn) card-id)]
-      (if (s/valid? ::card card)
-        (let [tx-data (merge update-card-data
-                             {:card/id card-id})
-              db-after (:db-after @(d/transact conn [tx-data]))]
-          (fetch db-after card-id))
-        (throw (ex-info "No valid card was found"
-                        {:cardlets/error-id :validation
-                         :error "card not found"}))))
+(defn update! [conn card-id update-data]
+  (if-not (s/valid? ::update-card update-data)
     (throw (ex-info "Update card data is invalid"
                     {:cardlets/error-id :validation
-                     :error "Invalid card data"}))))
+                     :error "Invalid card data"}))
+    (let [card (fetch (d/db conn) card-id)]
+      (if-not (s/valid? ::card card)
+        (throw (ex-info "No valid card was found"
+                        {:cardlets/error-id :validation
+                         :error "card not found"}))
+        (let [tx-data (merge update-data
+                             {:card/id card-id})
+              db-after (:db-after @(d/transact conn [tx-data]))]
+          (fetch db-after card-id))))))
 
 (defn delete! [conn card-id]
   (let [card (fetch (d/db conn) card-id)]
