@@ -6,7 +6,7 @@
 (s/def :card/id uuid?)
 (s/def :card/front (v/text-longer-than 5))
 (s/def :card/back (v/text-longer-than 5))
-(s/def :card/progress (s/and #(> % 0) int?))
+(s/def :card/progress pos-int?)
 (s/def :card/next-study-date inst?)
 
 (s/def ::card

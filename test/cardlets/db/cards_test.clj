@@ -23,10 +23,7 @@
   (testing "fetch cards by deck that returns empty when cards available"
     (let [uid (users/create! *conn* (mock/user))
           did (decks/create! *conn* uid (mock/deck))
-          card-data {:card/id (d/squuid)
-                     :card/deck [:deck/id did]
-                     :card/front "What is Clojure"
-                     :card/back "A programming language"}]
+          card-data (mock/card did)]
       @(d/transact *conn* [card-data])
       (let [cards  (SUT/fetch-by-deck (d/db *conn*) did)]
         (is (seq cards))
@@ -43,10 +40,7 @@
     (let [uid (users/create! *conn* (mock/user))
           did (decks/create! *conn* uid (mock/deck))
           cid (d/squuid)
-          card-data {:card/id cid
-                     :card/deck [:deck/id did]
-                     :card/front "What is Clojure"
-                     :card/back "A programming language"}]
+          card-data (merge (mock/card did) {:card/id cid})]
       @(d/transact *conn* [card-data])
       (let [card (SUT/fetch (d/db *conn*) cid)]
         (is (not (nil? card)))
@@ -55,21 +49,14 @@
   (testing "Create Card returns a valid card"
     (let [uid (users/create! *conn* (mock/user))
           did (decks/create! *conn* uid (mock/deck))
-          card-data {:card/id (d/squuid)
-                     :card/deck [:deck/id did]
-                     :card/front "What is Clojure"
-                     :card/back "A programming language"}
-          cid (SUT/create! *conn* did card-data)]
+          cid (SUT/create! *conn* did (mock/card did))]
       (is (uuid? cid))
       (is (s/valid? ::SUT/card (SUT/fetch (d/db *conn*) cid)))))
 
   (testing "Card update to return a valid card"
     (let [uid (users/create! *conn* (mock/user))
           did (decks/create! *conn* uid (mock/deck))
-          card-data {:card/id (d/squuid)
-                     :card/deck [:deck/id did]
-                     :card/front "What is Clojure"
-                     :card/back "A programming language"}
+          card-data (mock/card did)
           cid (SUT/create! *conn* did card-data)
           edit-data {:card/front "edited"}
           updated-card (SUT/update! *conn* cid edit-data)]
@@ -81,11 +68,7 @@
   (testing "Deleting a Card"
     (let [uid (users/create! *conn* (mock/user))
           did (decks/create! *conn* uid (mock/deck))
-          card-data {:card/id (d/squuid)
-                     :card/deck [:deck/id did]
-                     :card/front "What is Clojure"
-                     :card/back "A programming language"}
-          cid (SUT/create! *conn* did card-data)
+          cid (SUT/create! *conn* did (mock/card did))
           deleted-card (SUT/delete! *conn* cid)
           after-delete-card (SUT/fetch (d/db *conn*) cid)]
       (is (s/valid? ::SUT/card deleted-card))
